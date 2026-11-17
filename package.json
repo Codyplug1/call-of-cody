@@ -1,0 +1,13 @@
+{
+  "name": "arena-shooter",
+  "version": "0.1.0",
+  "description": "Multiplayer third-person arena shooter in de browser (fase 1: prototype)",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,1001 @@
+/* =========================================================
+   Tactical UI theme — gunmetal panels, olive accents, amber signal
+   ========================================================= */
+:root {
+  --bg: #0d100e;
+  --panel: rgba(18, 22, 20, .82);
+  --panel-2: rgba(30, 35, 31, .86);
+  --line: rgba(196, 202, 170, .18);
+  --line-strong: rgba(196, 202, 170, .38);
+  --olive: #6f7a4f;
+  --olive-dk: #3a4130;
+  --khaki: #b9b48a;
+  --text: #e7e6dc;
+  --muted: #9a9c8b;
+  --accent: #ff9a1f;       /* signal amber */
+  --accent-dk: #b8630a;
+  --danger: #ff4b3a;
+  --font-head: "Barlow Condensed", "Oswald", "Arial Narrow", "Roboto Condensed", "Helvetica Neue", Impact, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cut: 10px;             /* chamfer size */
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+  font-family: var(--font-body);
+  -webkit-user-select: none; user-select: none; touch-action: none;
+}
+/* 100%/inset i.p.v. 100vh: op telefoons is 100vh groter dan het zichtbare scherm (adresbalk),
+   waardoor het midden van het 3D-beeld lager lag dan het kruisje en schoten 'onder het kruisje' gingen. */
+#c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+.hidden { display: none !important; }
+
+/* ---------------------------------------------------------
+   Screens (menu, lobby)
+   --------------------------------------------------------- */
+.screen {
+  position: fixed; inset: 0; z-index: 10; overflow-y: auto; touch-action: pan-y;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 10px;
+  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+           max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  text-align: center;
+  background:
+    /* scanlines */
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .22) 0 1px, transparent 1px 3px),
+    /* faint tactical grid */
+    linear-gradient(rgba(185, 180, 138, .045) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, rgba(185, 180, 138, .045) 1px, transparent 1px) 0 0 / 48px 48px,
+    /* cinematic vignette */
+    radial-gradient(ellipse at 50% 40%, transparent 35%, rgba(0, 0, 0, .75) 100%),
+    /* base: dark forest green to charcoal */
+    linear-gradient(160deg, rgba(34, 42, 30, .95) 0%, rgba(16, 19, 17, .97) 55%, rgba(8, 10, 9, .98) 100%);
+}
+/* center content vertically, but never clip the top when it overflows */
+.screen > * { flex-shrink: 0; }
+.screen > :first-child { margin-top: auto; }
+.screen > :last-child { margin-bottom: auto; }
+/* The start screen ends with a position:fixed cheat box, which is :last-child but out of flow.
+   That left no bottom auto-margin, so the whole menu was pushed to the bottom. Fix: centre via the last in-flow element. */
+#menu > #cheatBox { margin: 0; }
+#menu > .hint { margin-bottom: auto; }
+
+h1 {
+  position: relative;
+  margin: 0 0 14px; padding-bottom: 14px;
+  font-family: var(--font-head); font-weight: 800; font-size: 64px; line-height: .88;
+  letter-spacing: 6px; text-transform: uppercase; color: var(--text);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .6), 0 0 24px rgba(0, 0, 0, .6);
+}
+h1::first-line { color: var(--khaki); letter-spacing: 12px; }
+h1::after {
+  content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 70%; height: 6px;
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 6px, transparent 6px 11px);
+  opacity: .9;
+}
+h2 {
+  margin: 0; font-family: var(--font-head); font-weight: 700; font-size: 34px;
+  letter-spacing: 4px; text-transform: uppercase; color: var(--text);
+}
+h3 {
+  display: flex; align-items: center; gap: 10px; width: min(360px, 100%);
+  margin: 12px 0 0; font-family: var(--font-head); font-weight: 600; font-size: 16px;
+  text-transform: uppercase; letter-spacing: 3px; color: var(--khaki);
+}
+h3::before, h3::after { content: ""; flex: 1; height: 1px; background: var(--line-strong); }
+.label {
+  font-family: var(--font-head); font-weight: 600; font-size: 13px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 3px;
+}
+#roomCode {
+  position: relative; padding: 6px 22px 4px; min-width: 200px;
+  font-family: var(--font-head); font-size: 52px; font-weight: 700; line-height: 1.1;
+  letter-spacing: 10px; text-indent: 10px; color: var(--accent);
+  text-shadow: 0 0 18px rgba(255, 154, 31, .25);
+  background:
+    linear-gradient(var(--khaki), var(--khaki)) top left / 16px 2px no-repeat,
+    linear-gradient(var(--khaki), var(--khaki)) top left / 2px 16px no-repeat,
+    linear-gradient(var(--khaki), var(--khaki)) top right / 16px 2px no-repeat,
+    linear-gradient(var(--khaki), var(--khaki)) top right / 2px 16px no-repeat,
+    linear-gradient(var(--khaki), var(--khaki)) bottom left / 16px 2px no-repeat,
+    linear-gradient(var(--khaki), var(--khaki)) bottom left / 2px 16px no-repeat,
+    linear-gradient(var(--khaki), var(--khaki)) bottom right / 16px 2px no-repeat,
+    linear-gradient(var(--khaki), var(--khaki)) bottom right / 2px 16px no-repeat,
+    rgba(0, 0, 0, .35);
+}
+.hint { margin: 0; font-size: 13px; line-height: 1.4; color: var(--muted); max-width: 360px; }
+.msg {
+  margin: 0; min-height: 18px; color: var(--danger); font-size: 14px;
+  font-family: var(--font-head); font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+}
+.or {
+  display: flex; align-items: center; gap: 10px; width: min(230px, 100%);
+  color: var(--muted); font-family: var(--font-head); font-size: 13px;
+  letter-spacing: 3px; text-transform: uppercase;
+}
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; align-items: center; }
+
+/* ---------------------------------------------------------
+   Inputs
+   --------------------------------------------------------- */
+input {
+  font: inherit; font-family: var(--font-head); font-weight: 600; font-size: 19px;
+  letter-spacing: 1.5px; padding: 11px 14px; min-height: 48px;
+  border-radius: 0; border: 1px solid var(--line-strong); border-bottom: 2px solid var(--olive);
+  background: rgba(0, 0, 0, .45); color: var(--text); width: 240px; max-width: 100%;
+  text-align: center; outline: none;
+  -webkit-user-select: text; user-select: text;
+  transition: border-color .15s, background .15s;
+}
+input::placeholder { color: rgba(185, 180, 138, .45); text-transform: uppercase; letter-spacing: 2px; }
+input:focus { border-color: var(--line-strong); border-bottom-color: var(--accent); background: rgba(0, 0, 0, .6); }
+#codeInput { width: 140px; text-transform: uppercase; letter-spacing: 4px; }
+
+/* ---------------------------------------------------------
+   Buttons
+   --------------------------------------------------------- */
+button {
+  font: inherit; font-family: var(--font-head); font-weight: 700; font-size: 19px;
+  text-transform: uppercase; letter-spacing: 3px;
+  padding: 12px 28px; min-height: 50px; min-width: 200px;
+  border-radius: 0; border: 1px solid transparent; cursor: pointer;
+  color: #1a1004;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .18), transparent 45%),
+    var(--accent);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  transition: filter .12s, background-color .12s, transform .06s;
+}
+button:active { transform: translateY(1px); filter: brightness(.85); }
+button:focus-visible { outline: 2px solid var(--text); outline-offset: -4px; }
+@media (hover: hover) { button:hover { filter: brightness(1.1); } }
+
+button.secondary {
+  color: var(--text);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .06), transparent 50%),
+    var(--olive-dk);
+  border-color: var(--line-strong);
+}
+button.small {
+  --cut: 7px;
+  padding: 8px 16px; min-height: 40px; min-width: 0; font-size: 15px; letter-spacing: 2px;
+}
+button.pick, button.lang {
+  --cut: 7px;
+  min-width: 0; padding: 10px 16px; min-height: 44px; font-size: 16px; letter-spacing: 2px;
+  color: var(--text); background: rgba(0, 0, 0, .45); border: 1px solid var(--line-strong);
+}
+button.pick.active, button.lang.active {
+  color: var(--accent); border-color: var(--accent);
+  background:
+    linear-gradient(var(--accent), var(--accent)) left bottom / 100% 2px no-repeat,
+    rgba(255, 154, 31, .14);
+}
+/* lobby settings: read-only for non-hosts */
+button.pick:disabled { cursor: default; filter: none; transform: none; opacity: .5; }
+button.pick.active:disabled { opacity: .85; }
+@media (hover: hover) { button.pick:disabled:hover { filter: none; } }
+.settings.readonly {
+  position: relative; padding: 4px 6px;
+  background: repeating-linear-gradient(-45deg, rgba(185, 180, 138, .05) 0 6px, transparent 6px 12px);
+}
+#btnCreate, #btnStart { min-width: 240px; }
+#btnStart { margin-top: 6px; }
+#btnJoin { min-width: 0; }
+
+/* ---------------------------------------------------------
+   Player list
+   --------------------------------------------------------- */
+ul#playerList { list-style: none; margin: 0; padding: 0; width: min(360px, 100%); }
+ul#playerList li {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin-bottom: 4px;
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--olive);
+  text-align: left; font-size: 15px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+ul#playerList li:nth-child(odd) { background: var(--panel-2); }
+ul#playerList .dot { width: 12px; height: 12px; border-radius: 0; transform: rotate(45deg); border: 1px solid rgba(255, 255, 255, .55); flex: none; }
+ul#playerList .nm {
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--font-head); font-weight: 600; font-size: 18px; letter-spacing: 1px;
+}
+ul#playerList .meta {
+  font-family: var(--font-head); font-size: 13px; color: var(--khaki);
+  text-transform: uppercase; letter-spacing: 1.5px; white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   HUD
+   --------------------------------------------------------- */
+#hud { position: fixed; inset: 0; z-index: 5; touch-action: none; font-family: var(--font-head); }
+/* permanent soft cinematic vignette (underneath all HUD children) */
+#hud::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, .45) 100%);
+}
+#hud > * { pointer-events: none; }
+#hud #fireBtn, #hud #btnQuit, #hud #btnTakeover { pointer-events: auto; }
+
+/* knop om na uitschakeling een levende bot over te nemen */
+#btnTakeover {
+  position: absolute; left: 50%; bottom: calc(34% - 64px); transform: translateX(-50%);
+  min-height: 48px; padding: 12px 26px; white-space: nowrap;
+  font-size: 17px; letter-spacing: 3px; text-transform: uppercase;
+  animation: takeoverPulse 1.6s ease-in-out infinite;
+}
+#btnTakeover:active { transform: translateX(-50%) scale(.96); }
+@keyframes takeoverPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.25); } }
+
+#topBar {
+  position: absolute; top: max(8px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 0; padding: 0;
+  background: var(--panel); border: 1px solid var(--line); border-top: 2px solid var(--accent);
+  font-size: 16px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 8px 100%);
+}
+#topBar span { padding: 5px 16px; }
+#topBar span + span { border-left: 1px solid var(--line-strong); color: var(--khaki); }
+#topBar span:empty { display: none; }
+
+#btnQuit {
+  --cut: 6px;
+  position: absolute; top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left));
+  padding: 0; width: 40px; min-width: 0; min-height: 40px; height: 40px;
+  font-family: var(--font-body); font-size: 16px; letter-spacing: 0; line-height: 1;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line-strong); opacity: .8;
+}
+
+/* 4-line gap crosshair + centre dot */
+#crosshair {
+  position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  background:
+    linear-gradient(#fff, #fff) center top / 2px 8px no-repeat,
+    linear-gradient(#fff, #fff) center bottom / 2px 8px no-repeat,
+    linear-gradient(#fff, #fff) left center / 8px 2px no-repeat,
+    linear-gradient(#fff, #fff) right center / 8px 2px no-repeat;
+  opacity: .92;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, .95));
+}
+#crosshair::before {
+  content: ""; position: absolute; left: 12px; top: 12px; width: 2px; height: 2px; background: #fff;
+}
+
+/* hit marker: split X */
+#hitmarker {
+  position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px;
+  opacity: 0; transition: opacity .15s;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 3px rgba(255, 60, 40, .9));
+}
+#hitmarker::before, #hitmarker::after {
+  content: ""; position: absolute; left: 16px; top: 0; width: 2px; height: 34px;
+  background: linear-gradient(180deg, #fff 0 34%, transparent 34% 66%, #fff 66% 100%);
+}
+#hitmarker::before { transform: rotate(45deg); }
+#hitmarker::after { transform: rotate(-45deg); }
+#hitmarker.show { opacity: 1; transition: none; }
+
+#banner {
+  position: absolute; left: 50%; top: 22%; transform: translateX(-50%); width: 90%;
+  text-align: center; white-space: pre-line;
+  font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: 5px; text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .7), 0 4px 18px rgba(0, 0, 0, .9), 0 0 2px #000;
+}
+#banner .sub {
+  display: inline-block; margin-top: 10px; padding: 4px 14px;
+  font-size: 18px; font-weight: 600; letter-spacing: 4px; color: var(--accent);
+  background: rgba(0, 0, 0, .55); border-left: 2px solid var(--accent); border-right: 2px solid var(--accent);
+  text-shadow: 0 1px 2px #000;
+}
+
+#feed {
+  position: absolute; top: max(56px, calc(env(safe-area-inset-top) + 48px)); right: max(10px, env(safe-area-inset-right));
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  text-align: right; font-size: 15px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  max-width: 60vw;
+}
+#feed div {
+  padding: 3px 12px 3px 16px; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background:
+    linear-gradient(90deg, transparent 0, rgba(12, 14, 13, .78) 18px),
+    transparent;
+  border-right: 2px solid var(--accent);
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%);
+  text-shadow: 0 1px 1px #000;
+}
+
+#spectateMsg {
+  position: absolute; bottom: 34%; width: 100%; text-align: center;
+  font-size: 22px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase;
+  text-shadow: 0 2px 6px #000, 0 0 2px #000;
+}
+
+/* angular health bar */
+#hpWrap {
+  position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  width: min(240px, 40vw); height: 20px; overflow: hidden;
+  background: rgba(10, 12, 11, .7); border: 1px solid var(--line-strong);
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+/* segment ticks over the bar */
+#hpWrap::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(0, 0, 0, .55) calc(10% - 2px) 10%),
+    linear-gradient(180deg, rgba(255, 255, 255, .22), transparent 50%, rgba(0, 0, 0, .25));
+}
+#hpBar { height: 100%; width: 100%; transition: width .15s; }
+#hpText {
+  position: absolute; inset: 0; z-index: 1; text-align: center;
+  font-size: 15px; font-weight: 700; line-height: 18px; letter-spacing: 2px;
+  text-shadow: 0 0 3px #000, 0 1px 1px #000;
+}
+
+#vignette {
+  position: absolute; inset: 0; opacity: 0; transition: opacity .35s;
+  box-shadow: inset 0 0 140px 30px rgba(200, 0, 0, .7);
+  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(140, 0, 0, .25) 100%);
+}
+#vignette.show { opacity: 1; transition: none; }
+
+/* touch joystick (geometry must stay: 124px base, knob centred at 34px) */
+#joyBase {
+  position: absolute; width: 124px; height: 124px; border-radius: 50%; display: none;
+  border: 1px solid rgba(231, 230, 220, .35);
+  background:
+    linear-gradient(rgba(231, 230, 220, .25), rgba(231, 230, 220, .25)) center / 1px 70% no-repeat,
+    linear-gradient(rgba(231, 230, 220, .25), rgba(231, 230, 220, .25)) center / 70% 1px no-repeat,
+    radial-gradient(circle, rgba(12, 14, 13, .25) 0 55%, rgba(12, 14, 13, .45) 56% 100%);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, .15);
+}
+#joyKnob {
+  position: absolute; left: 34px; top: 34px; width: 56px; height: 56px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 154, 31, .55) 0 18%, rgba(30, 35, 31, .7) 20% 100%);
+  border: 2px solid rgba(231, 230, 220, .65);
+}
+
+#fireBtn {
+  --cut: 16px;
+  position: absolute; right: max(28px, env(safe-area-inset-right)); bottom: max(34px, env(safe-area-inset-bottom));
+  width: 96px; height: 96px; min-width: 0; min-height: 0; padding: 0;
+  font-size: 17px; letter-spacing: 3px; color: #fff;
+  background:
+    linear-gradient(rgba(255, 255, 255, .55), rgba(255, 255, 255, .55)) center 30% / 22px 2px no-repeat,
+    linear-gradient(rgba(255, 255, 255, .55), rgba(255, 255, 255, .55)) center 70% / 22px 2px no-repeat,
+    rgba(200, 50, 30, .55);
+  border: 2px solid rgba(255, 255, 255, .55);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+  text-shadow: 0 1px 2px #000;
+}
+#fireBtn:active { background-color: rgba(230, 60, 35, .9); transform: scale(.95); filter: none; }
+
+/* damage direction arcs (one per recent attacker, rotated by JS) */
+#dmgDirs { position: absolute; inset: 0; overflow: hidden; }
+.dmgArc {
+  display: none; position: absolute; left: 50%; top: 50%;
+  width: min(46vmin, 300px); height: min(46vmin, 300px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 7px solid transparent; border-top-color: rgba(255, 45, 30, .92);
+  filter: drop-shadow(0 0 6px rgba(255, 30, 20, .85)) drop-shadow(0 0 1px #000);
+  will-change: transform, opacity;
+}
+
+/* kill confirmation under the crosshair */
+#killConfirm {
+  position: absolute; left: 50%; top: calc(50% + 34px); transform: translateX(-50%);
+  text-align: center; text-transform: uppercase; white-space: nowrap; opacity: 0;
+  text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, .8);
+}
+#killConfirm .k1 {
+  display: inline-block; padding: 2px 10px;
+  font-size: 15px; font-weight: 800; letter-spacing: 4px; color: #1a1004;
+  background: var(--accent); text-shadow: none;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+#killName { margin-top: 3px; font-size: 18px; font-weight: 700; letter-spacing: 2px; color: #fff; }
+#killConfirm.show { animation: killPop 1.6s ease-out forwards; }
+@keyframes killPop {
+  0% { opacity: 0; transform: translateX(-50%) scale(1.35); }
+  8% { opacity: 1; transform: translateX(-50%) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+}
+
+/* spawn protection indicator (above the health bar) */
+#protect {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 72px);
+  width: min(180px, 34vw); text-align: center;
+  font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #8fdcff;
+  text-shadow: 0 1px 2px #000;
+}
+#protect .bar { margin-top: 2px; height: 4px; background: rgba(10, 12, 11, .7); border: 1px solid rgba(143, 220, 255, .4); }
+#protectFill { height: 100%; background: #6fd3ff; transform-origin: left center; box-shadow: 0 0 6px rgba(111, 211, 255, .8); }
+
+/* end-of-match overlay (sits above the HUD; scene stays faintly visible) */
+#matchEnd {
+  z-index: 20; touch-action: pan-y;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 40%, rgba(0, 0, 0, .35) 30%, rgba(0, 0, 0, .85) 100%),
+    linear-gradient(160deg, rgba(34, 42, 30, .72) 0%, rgba(16, 19, 17, .8) 55%, rgba(8, 10, 9, .88) 100%);
+  animation: meIn .35s ease-out;
+}
+@keyframes meIn { from { opacity: 0; } to { opacity: 1; } }
+#meTag { color: var(--accent); letter-spacing: 6px; font-size: 15px; }
+#meTitle {
+  position: relative; padding-bottom: 14px; margin-bottom: 8px;
+  font-size: 54px; font-weight: 800; line-height: 1; letter-spacing: 4px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .6), 0 0 24px rgba(0, 0, 0, .6);
+}
+#meTitle::after {
+  content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 70%; height: 6px;
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 6px, transparent 6px 11px);
+}
+#meTitle .meLab { color: var(--khaki); }
+#meTitle .meName { color: #fff; }
+#meTitle.mine { color: var(--accent); text-shadow: 0 0 28px rgba(255, 154, 31, .45), 0 2px 0 rgba(0, 0, 0, .6); }
+#meTable {
+  width: min(440px, 100%); border-collapse: separate; border-spacing: 0 4px;
+  font-family: var(--font-head); text-transform: uppercase;
+}
+#meTable th {
+  padding: 0 10px 2px; font-size: 13px; font-weight: 600; letter-spacing: 2px; color: var(--muted); text-align: right;
+}
+#meTable th:nth-child(2), #meTable td.nm { text-align: left; }
+#meTable td {
+  padding: 7px 10px; font-size: 18px; font-weight: 600; letter-spacing: 1px; text-align: right;
+  background: var(--panel); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+#meTable tr:nth-child(even) td { background: var(--panel-2); }
+#meTable td.pl { width: 40px; text-align: center; color: var(--khaki); border-left: 3px solid var(--olive); }
+#meTable td.nm { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#meTable td .dot {
+  display: inline-block; width: 10px; height: 10px; margin-right: 9px; vertical-align: 1px;
+  transform: rotate(45deg); border: 1px solid rgba(255, 255, 255, .55);
+}
+#meTable td .tag {
+  margin-left: 8px; padding: 1px 6px; font-size: 11px; letter-spacing: 1.5px; vertical-align: 2px;
+  color: var(--muted); border: 1px solid var(--line-strong);
+}
+#meTable td .tag.you { color: var(--accent); border-color: var(--accent); }
+#meTable tr.win td { color: #fff; background: rgba(255, 154, 31, .16); }
+#meTable tr.win td.pl { color: var(--accent); border-left-color: var(--accent); }
+#meTable tr.me td.nm { color: var(--accent); }
+#meBack { font-family: var(--font-head); font-size: 16px; letter-spacing: 3px; text-transform: uppercase; color: var(--khaki); }
+
+/* ---------------------------------------------------------
+   Responsive
+   --------------------------------------------------------- */
+/* touch devices: every button at least 44px tall */
+@media (pointer: coarse) {
+  button.small { min-height: 44px; }
+  #btnQuit { width: 44px; height: 44px; min-height: 44px; }
+}
+
+/* narrow phones (portrait) */
+@media (max-width: 420px) {
+  h1 { font-size: 50px; letter-spacing: 4px; }
+  h1::first-line { letter-spacing: 9px; }
+  h2 { font-size: 28px; }
+  #roomCode { font-size: 42px; letter-spacing: 7px; text-indent: 7px; min-width: 0; padding: 6px 16px 4px; }
+  button { min-width: 0; padding-left: 22px; padding-right: 22px; }
+  #btnCreate, #btnStart { min-width: 0; width: min(260px, 100%); }
+  input { width: min(260px, 100%); }
+  #codeInput { width: 130px; }
+  #banner { font-size: 38px; letter-spacing: 3px; }
+  #banner .sub { font-size: 15px; letter-spacing: 3px; }
+  #topBar { font-size: 14px; letter-spacing: 1.5px; }
+  #topBar span { padding: 4px 10px; }
+  #feed { font-size: 13px; }
+  #meTitle { font-size: 38px; letter-spacing: 2px; }
+  #meTable td { font-size: 16px; padding: 6px 7px; }
+  #meTable td.nm { max-width: 150px; }
+}
+
+/* short screens (phones in landscape) */
+@media (max-height: 500px) {
+  .screen { gap: 7px; padding-top: max(12px, env(safe-area-inset-top)); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  h1 { font-size: 42px; margin-bottom: 6px; padding-bottom: 10px; }
+  h2 { font-size: 26px; }
+  h3 { margin-top: 6px; font-size: 14px; }
+  #roomCode { font-size: 36px; padding: 4px 18px 2px; }
+  button { min-height: 44px; padding-top: 8px; padding-bottom: 8px; font-size: 17px; }
+  input { min-height: 44px; padding-top: 8px; padding-bottom: 8px; }
+  #banner { top: 16%; font-size: 36px; }
+  #banner .sub { font-size: 15px; margin-top: 6px; }
+  #spectateMsg { font-size: 18px; bottom: 30%; }
+  #feed { top: max(48px, calc(env(safe-area-inset-top) + 42px)); font-size: 13px; }
+  #fireBtn { width: 84px; height: 84px; --cut: 14px; }
+  #meTitle { font-size: 34px; padding-bottom: 9px; margin-bottom: 2px; }
+  #meTable { border-spacing: 0 2px; }
+  #meTable td { font-size: 15px; padding: 3px 9px; }
+  #killConfirm { top: calc(50% + 28px); }
+  #killName { font-size: 15px; }
+}
+
+/* =========================================================
+   [polish] Fase 4: laadscherm, pauzemenu, instellingen, besturing,
+   HUD-extra's (FPS, weinig HP, klik-om-te-richten, eerste hint, toast)
+   ========================================================= */
+
+/* ---- laadscherm */
+#loading { z-index: 50; transition: opacity .4s ease; background-color: var(--bg); }
+#loading.fade { opacity: 0; pointer-events: none; }
+.loadBar {
+  position: relative; width: min(320px, 80vw); height: 10px; margin-top: 6px;
+  background: rgba(10, 12, 11, .7); border: 1px solid var(--line-strong);
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+#loadFill {
+  height: 100%; transform: scaleX(.04); transform-origin: left center; transition: transform .25s ease-out;
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 8px, var(--accent-dk) 8px 14px);
+  box-shadow: 0 0 10px rgba(255, 154, 31, .45);
+  animation: loadStripes .8s linear infinite;
+}
+@keyframes loadStripes { from { background-position: 0 0; } to { background-position: 28px 0; } }
+#loadMsg { min-height: 18px; font-family: var(--font-head); letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* ---- menu-knoppenrij */
+button.menuTool { min-width: 0; min-height: 44px; }
+.menuSep { width: 1px; height: 28px; background: var(--line-strong); margin: 0 4px; }
+
+/* ---- overlays (boven HUD en eindscherm) */
+.screen.overlay {
+  z-index: 30;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 40%, rgba(0, 0, 0, .35) 30%, rgba(0, 0, 0, .88) 100%),
+    linear-gradient(160deg, rgba(34, 42, 30, .78) 0%, rgba(16, 19, 17, .86) 55%, rgba(8, 10, 9, .92) 100%);
+  animation: meIn .18s ease-out;
+}
+#settingsPanel, #controlsPanel { z-index: 40; background-color: rgba(8, 10, 9, .82); }
+.pauseTag { color: var(--accent); letter-spacing: 6px; }
+#pauseTitle { font-size: 54px; font-weight: 800; letter-spacing: 6px; line-height: 1; }
+.pauseBtns { display: flex; flex-direction: column; gap: 8px; width: min(300px, 100%); margin-top: 6px; }
+.pauseBtns button { width: 100%; min-width: 0; }
+button.danger { color: #ffd2cc; border-color: rgba(255, 75, 58, .55); background: linear-gradient(180deg, rgba(255, 255, 255, .06), transparent 50%), rgba(110, 24, 16, .75); }
+
+/* ---- instellingen */
+.cfgGrid {
+  display: grid; gap: 6px 22px; width: min(880px, 100%);
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); align-items: start;
+}
+.cfgSec { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 0; }
+.cfgSec h3 { width: 100%; margin-bottom: 2px; }
+.cfgRow {
+  display: grid; grid-template-columns: minmax(84px, 1fr) minmax(110px, 180px) 52px; align-items: center; gap: 10px;
+  min-height: 44px; padding: 4px 10px; text-align: left;
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--olive);
+  font-family: var(--font-head); font-weight: 600; font-size: 15px; letter-spacing: .5px; text-transform: uppercase;
+}
+.cfgRow:focus-within { border-left-color: var(--accent); }
+.cfgRow > span:first-child { color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.cfgRow output { color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
+.cfgRow .seg { grid-column: 2 / 4; display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
+.cfgRow .seg button.pick { padding: 6px 7px; min-height: 36px; font-size: 13px; letter-spacing: 1px; flex: 1 1 auto; }
+.cfgNote { margin: -2px 0 2px; font-size: 12px; line-height: 1.35; color: var(--muted); text-align: left; }
+
+.cfgRow input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; min-height: 0; height: 30px;
+  padding: 0; margin: 0; border: 0; background: transparent; cursor: pointer; touch-action: pan-y;
+  --p: 50%;
+}
+.cfgRow input[type=range]:focus { background: transparent; }
+.cfgRow input[type=range]::-webkit-slider-runnable-track {
+  height: 4px; border: 0;
+  background: linear-gradient(var(--accent), var(--accent)) 0 0 / var(--p) 100% no-repeat, rgba(185, 180, 138, .25);
+}
+.cfgRow input[type=range]::-moz-range-track { height: 4px; background: rgba(185, 180, 138, .25); }
+.cfgRow input[type=range]::-moz-range-progress { height: 4px; background: var(--accent); }
+.cfgRow input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 14px; height: 22px; margin-top: -9px;
+  background: var(--khaki); border: 1px solid #000; box-shadow: 0 0 0 2px rgba(0, 0, 0, .35);
+}
+.cfgRow input[type=range]::-moz-range-thumb { width: 14px; height: 22px; border-radius: 0; background: var(--khaki); border: 1px solid #000; }
+.cfgRow input[type=range]:focus-visible::-webkit-slider-thumb { background: var(--accent); box-shadow: 0 0 0 2px var(--text); }
+.cfgRow input[type=range]:focus-visible::-moz-range-thumb { background: var(--accent); }
+
+/* ---- besturingshulp */
+.ctrlGrid {
+  display: grid; gap: 6px 26px; width: min(900px, 100%);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start;
+}
+.touchFirst .ctrlTouch { order: -1; }
+.ctrlSec { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.ctrlSec h3 { width: 100%; }
+.ctrlRow {
+  display: grid; grid-template-columns: minmax(120px, auto) 1fr; align-items: center; gap: 12px;
+  padding: 6px 10px; text-align: left; background: var(--panel); border: 1px solid var(--line);
+  font-size: 14px; line-height: 1.3; color: var(--text);
+}
+.ctrlRow:nth-child(odd) { background: var(--panel-2); }
+.ctrlRow .keys { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.ctrlRow small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+kbd {
+  display: inline-block; min-width: 26px; padding: 3px 6px; text-align: center;
+  font-family: var(--font-head); font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text); background: linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(0, 0, 0, .25)), var(--olive-dk);
+  border: 1px solid var(--line-strong); border-bottom-width: 3px; border-bottom-color: rgba(0, 0, 0, .6);
+}
+kbd.wide { padding: 3px 9px; }
+kbd.fire { background: rgba(200, 50, 30, .7); border-color: rgba(255, 255, 255, .45); }
+
+/* ---- HUD-extra's */
+#fpsMeter {
+  position: absolute; top: max(8px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right));
+  padding: 2px 8px; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; color: #8fd16a;
+  background: rgba(10, 12, 11, .65); border: 1px solid var(--line); font-variant-numeric: tabular-nums;
+}
+#fpsMeter.bad { color: var(--accent); }
+#lowHp {
+  position: absolute; inset: 0; opacity: 0; transition: opacity .4s;
+  box-shadow: inset 0 0 110px 26px rgba(170, 0, 0, .65);
+  background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(120, 0, 0, .3) 100%);
+}
+#lowHp.on { opacity: 1; animation: lowHpPulse 0.9s ease-in-out infinite; }
+#lowHp.on.crit { animation-duration: .62s; }
+@keyframes lowHpPulse { 0%, 100% { opacity: .55; } 30% { opacity: 1; } }
+#aimPrompt {
+  position: absolute; left: 50%; top: calc(50% + 40px); transform: translateX(-50%);
+  padding: 6px 16px; white-space: nowrap;
+  font-size: 18px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: #fff;
+  background: rgba(10, 12, 11, .7); border-left: 2px solid var(--accent); border-right: 2px solid var(--accent);
+  text-shadow: 0 1px 2px #000; animation: takeoverPulse 1.6s ease-in-out infinite;
+}
+#firstHint {
+  position: absolute; left: 50%; bottom: calc(max(14px, env(safe-area-inset-bottom)) + 64px); transform: translateX(-50%);
+  width: max-content; max-width: min(92vw, 980px); padding: 8px 18px; text-align: center;
+  font-size: 17px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text);
+  background: var(--panel); border: 1px solid var(--line-strong); border-top: 2px solid var(--accent);
+  text-shadow: 0 1px 2px #000; animation: hintIn .4s ease-out;
+}
+@keyframes hintIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+#toast {
+  position: fixed; z-index: 45; left: 50%; top: max(52px, calc(env(safe-area-inset-top) + 46px));
+  transform: translate(-50%, -10px); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+  padding: 6px 16px; max-width: 90vw; text-align: center;
+  font-family: var(--font-head); font-size: 15px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line-strong); border-left: 3px solid var(--accent);
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* pc zonder touch: geen touch-vuurknop (verschijnt weer zodra er een touch is) */
+@media (pointer: fine) { body:not(.touch-used) #fireBtn, body:not(.touch-used) #zoomBtn, body:not(.touch-used) #moveBtns { display: none !important; } }
+
+/* ---- toetsenbordfocus overal zichtbaar */
+button.pick:focus-visible, button.lang:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input:focus-visible { box-shadow: 0 0 0 2px rgba(255, 154, 31, .35); }
+.cfgRow input[type=range]:focus-visible { box-shadow: none; outline: none; }
+
+/* ---- responsief */
+@media (max-width: 420px) {
+  #pauseTitle { font-size: 40px; }
+  .menuSep { display: none; }
+  .cfgGrid, .ctrlGrid { grid-template-columns: 1fr; }
+  .cfgRow { grid-template-columns: minmax(80px, 1fr) minmax(100px, 1.4fr) 46px; font-size: 14px; }
+  #firstHint { font-size: 14px; letter-spacing: 1px; }
+}
+@media (max-height: 500px) {
+  #pauseTitle { font-size: 36px; }
+  .pauseBtns { display: grid; grid-template-columns: 1fr 1fr; width: min(560px, 100%); gap: 6px; }
+  .pauseBtns #btnResume { grid-column: 1 / -1; }
+  .cfgGrid { gap: 2px 14px; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); }
+  .cfgRow { grid-template-columns: minmax(84px, 1fr) minmax(100px, 160px) 48px; }
+  .cfgSec { gap: 4px; }
+  .cfgRow { min-height: 38px; padding: 2px 8px; font-size: 14px; }
+  .cfgRow .seg button.pick { min-height: 32px; padding: 4px 8px; font-size: 13px; }
+  .ctrlRow { padding: 4px 8px; font-size: 13px; }
+  kbd { font-size: 12px; padding: 2px 5px; }
+  #firstHint { font-size: 14px; bottom: calc(max(14px, env(safe-area-inset-bottom)) + 48px); }
+  #aimPrompt { font-size: 15px; }
+  .loadBar { margin-top: 2px; }
+}
+
+/* lange meldingen in het menu netjes laten afbreken */
+#menuMsg { max-width: min(460px, 100%); line-height: 1.3; }
+
+/* ---------------------------------------------------------
+   Skin-keuze: raster van 10 met plaatje + kleurstaal
+   --------------------------------------------------------- */
+#skinPick.skin-grid {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;
+  width: min(560px, 100%);
+}
+button.pick.skin {
+  --cut: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px;
+  min-width: 0; min-height: 0; padding: 6px 4px 5px;
+  font-size: 13px; letter-spacing: 1px; line-height: 1.15;
+}
+button.pick.skin .sw {
+  display: block; width: 100%; max-width: 76px; aspect-ratio: 1 / 1;
+  border: 1px solid var(--line); background-color: #222;
+}
+button.pick.skin.active .sw { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+button.pick.skin .nm { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* phones in landscape: plaatje links, naam rechts (2 rijen van 5) */
+@media (max-height: 500px) {
+  #skinPick.skin-grid { width: min(760px, 100%); gap: 5px; }
+  button.pick.skin {
+    flex-direction: row; gap: 6px; padding: 3px 6px 3px 3px; min-height: 42px;
+    font-size: 12px; letter-spacing: 0; text-align: left;
+  }
+  button.pick.skin .sw { flex: 0 0 36px; width: 36px; }
+}
+/* narrow phones (portrait) */
+@media (max-width: 420px) {
+  #skinPick.skin-grid { gap: 4px; }
+  button.pick.skin { padding: 4px 2px; font-size: 10.5px; letter-spacing: 0; }
+}
+
+/* ---------------------------------------------------------
+   Wapens (fase 2): wapenkeuze met stat-balkjes, ZOOM-knop, kijker
+   --------------------------------------------------------- */
+#weaponPick.wgrid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px;
+  width: min(480px, 100%);
+}
+button.pick.wpick {
+  display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 3px;
+  padding: 7px 9px 8px; min-height: 0; text-align: left; letter-spacing: 1px;
+}
+.wpick .wname { font-size: 15px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wpick .wtags { min-height: 10px; font-size: 10px; line-height: 1; letter-spacing: 1.5px; color: var(--khaki); }
+.wpick .wstat { display: flex; align-items: center; gap: 6px; }
+.wpick .wl { flex: none; width: 48px; font-size: 10px; line-height: 1; letter-spacing: 1px; color: var(--muted); }
+.wpick .wbar { flex: 1; height: 5px; background: rgba(255, 255, 255, .1); }
+.wpick .wbar i { display: block; height: 100%; background: var(--khaki); }
+.wpick.active .wbar i { background: var(--accent); }
+@media (max-width: 420px) {
+  #weaponPick.wgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-height: 500px) {
+  button.pick.wpick { padding: 5px 8px 6px; gap: 2px; }
+  .wpick .wname { font-size: 14px; }
+}
+
+#hud #zoomBtn { pointer-events: auto; }
+#zoomBtn {
+  --cut: 10px;
+  position: absolute;
+  right: calc(max(28px, env(safe-area-inset-right)) + 14px);
+  bottom: calc(max(34px, env(safe-area-inset-bottom)) + 110px);
+  width: 68px; height: 50px; min-width: 0; min-height: 0; padding: 0;
+  font-size: 15px; letter-spacing: 2px; color: #fff;
+  background: rgba(30, 35, 31, .6); border: 2px solid rgba(255, 255, 255, .5);
+  text-shadow: 0 1px 2px #000;
+}
+#zoomBtn.on { color: #1a1004; background: rgba(255, 154, 31, .85); border-color: var(--accent); text-shadow: none; }
+@media (max-height: 500px) {
+  #zoomBtn { right: calc(max(28px, env(safe-area-inset-right)) + 8px); bottom: calc(max(34px, env(safe-area-inset-bottom)) + 96px); }
+}
+
+/* springen / hurken / liggen (touch): smalle kolom links naast de vuurknop, ZOOM staat erboven */
+#moveBtns {
+  position: absolute;
+  right: calc(max(28px, env(safe-area-inset-right)) + 108px);
+  bottom: max(34px, env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: 6px;
+}
+#hud #moveBtns .moveBtn { pointer-events: auto; }
+.moveBtn {
+  --cut: 8px;
+  width: 70px; height: 40px; min-width: 0; min-height: 0; padding: 0;
+  font-size: 13px; letter-spacing: 1.5px; color: #fff;
+  background: rgba(30, 35, 31, .6); border: 2px solid rgba(255, 255, 255, .45);
+  text-shadow: 0 1px 2px #000;
+}
+#jumpBtn { height: 48px; font-size: 14px; background: rgba(46, 58, 40, .7); }
+.moveBtn.on { color: #1a1004; background: rgba(255, 154, 31, .85); border-color: var(--accent); text-shadow: none; }
+.moveBtn:active { transform: scale(.95); filter: none; }
+@media (max-height: 500px) {
+  #moveBtns { right: calc(max(28px, env(safe-area-inset-right)) + 94px); gap: 5px; }
+  .moveBtn { width: 64px; height: 36px; font-size: 12px; letter-spacing: 1px; }
+  #jumpBtn { height: 42px; font-size: 13px; }
+}
+
+/* kijker-overlay (sniper): zwart buiten de cirkel, dun dradenkruis, dikke balken aan de rand */
+#scope {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at center, #ff3b30 0 1.5px, transparent 2.5px),
+    linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, .85)) center / 100% 1px no-repeat,
+    linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, .85)) center / 1px 100% no-repeat,
+    radial-gradient(circle closest-side, transparent 0 82%, rgba(0, 0, 0, .35) 93%, #000 95%);
+}
+#scope::before, #scope::after { content: ""; position: absolute; }
+#scope::before {
+  left: 0; right: 0; top: 50%; height: 5px; margin-top: -2.5px;
+  background: linear-gradient(90deg, #000 0 calc(50% - 18vmin), transparent calc(50% - 18vmin) calc(50% + 18vmin), #000 calc(50% + 18vmin));
+}
+#scope::after {
+  top: 50%; bottom: 0; left: 50%; width: 5px; margin-left: -2.5px;
+  background: linear-gradient(transparent 0 18vmin, #000 18vmin);
+}
+#crosshair.zoomHide { opacity: 0; }
+
+/* ---------------------------------------------------------
+   VR (fase 5, Meta Quest 3): ENTER VR-knoppen (zie public/vr.js)
+   --------------------------------------------------------- */
+.vrBtn { border-color: var(--accent) !important; }
+#hud #btnVRHud {
+  position: absolute; top: max(8px, env(safe-area-inset-top)); left: calc(max(8px, env(safe-area-inset-left)) + 52px);
+  pointer-events: auto; opacity: .9;
+}
+
+/* ---- deuren (public/doors.js): hint "E Deur openen" (pc) en DEUR-knop (touch) */
+#hud #doorBtn { pointer-events: auto; }
+#doorHint {
+  position: absolute; left: 50%; bottom: calc(34% - 64px); transform: translateX(-50%);
+  padding: 8px 16px; white-space: nowrap; pointer-events: none;
+  font-family: var(--font-head); font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+}
+#doorHint kbd { margin-right: 6px; }
+#doorBtn {
+  --cut: 10px;
+  position: absolute;
+  right: calc(max(28px, env(safe-area-inset-right)) + 112px);
+  bottom: calc(max(34px, env(safe-area-inset-bottom)) + 18px);
+  width: 76px; height: 56px; min-width: 0; min-height: 0; padding: 0;
+  font-size: 15px; letter-spacing: 2px; color: #1a1004;
+  background: rgba(255, 154, 31, .85); border: 1px solid var(--accent);
+}
+#doorBtn:active { transform: scale(.95); }
+@media (max-height: 500px) {
+  #doorBtn { right: calc(max(28px, env(safe-area-inset-right)) + 100px); bottom: calc(max(34px, env(safe-area-inset-bottom)) + 12px); width: 66px; height: 48px; }
+}
+
+/* ---------------------------------------------------------
+   [FPS] camera-knop eerste/derde persoon (rechtsboven, alleen touch; pc: toets V) - public/fps.js
+   --------------------------------------------------------- */
+#hud #camBtn { pointer-events: auto; }
+#camBtn {
+  --cut: 6px;
+  position: absolute; top: max(8px, env(safe-area-inset-top)); right: max(8px, env(safe-area-inset-right));
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+  padding: 0 6px; width: auto; min-width: 0; min-height: 40px; height: 40px;
+  font-family: var(--font-head); font-size: 13px; font-weight: 700; letter-spacing: 1px; line-height: 1;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line-strong); opacity: .8;
+}
+#camBtn svg { display: block; flex: none; }
+#camBtn.on { color: var(--accent); border-color: var(--accent); opacity: .95; }
+#camBtn:active { transform: scale(.95); filter: none; }
+@media (pointer: coarse) { #camBtn { min-height: 44px; height: 44px; padding: 0 8px; } }
+@media (pointer: fine) { body:not(.touch-used) #camBtn { display: none !important; } }
+/* FPS-teller schuift naar links als de camera-knop rechtsboven staat */
+body.touch-used #fpsMeter { right: calc(max(8px, env(safe-area-inset-right)) + 72px); }
+@media (pointer: coarse) { #fpsMeter { right: calc(max(8px, env(safe-area-inset-right)) + 76px); } }
+
+/* ---------------------------------------------------------
+   [MES] inventaris (1 wapen / 2 mes / 3 medkit) boven de levensbalk, medkit-balk, finisher
+   --------------------------------------------------------- */
+#hud .invSlot, #hud #finBtn { pointer-events: auto; }
+#invBar {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 26px);
+  display: flex; gap: 4px;
+}
+.invSlot {
+  --cut: 6px;
+  position: relative; display: flex; align-items: center; gap: 5px;
+  min-width: 0; min-height: 0; height: 34px; padding: 0 10px 0 8px;
+  font-size: 13px; letter-spacing: 1px; color: var(--text); white-space: nowrap;
+  background: rgba(20, 24, 21, .62); border: 1px solid var(--line-strong); opacity: .75;
+}
+.invSlot b { color: var(--khaki); font-size: 12px; }
+.invSlot i { font-style: normal; color: var(--khaki); font-size: 12px; }
+.invSlot.on { opacity: 1; border-color: var(--accent); color: #fff; background: rgba(60, 46, 20, .78); }
+.invSlot.on b { color: var(--accent); }
+.invSlot.empty { opacity: .4; }
+#invW { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 520px), (max-height: 500px) { #invW { display: none; } .invSlot { height: 32px; padding: 0 7px; } }
+#healBar {
+  position: absolute; left: 50%; top: calc(50% + 96px); transform: translateX(-50%);
+  width: min(220px, 44vw); text-align: center;
+  font-size: 15px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #9fe69a;
+  text-shadow: 0 1px 3px #000;
+}
+#healBar .bar { margin-top: 3px; height: 6px; background: rgba(10, 12, 11, .7); border: 1px solid rgba(159, 230, 154, .5); }
+#healFill { height: 100%; background: #6fdc68; transform-origin: left center; transform: scaleX(0); }
+#finPrompt {
+  position: absolute; left: 50%; bottom: calc(34% - 16px); transform: translateX(-50%);
+  padding: 8px 16px; white-space: nowrap;
+  font-size: 17px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: #fff; background: rgba(120, 20, 12, .8); border: 1px solid #ff5a3c; border-left: 3px solid #ff5a3c;
+}
+#finPrompt kbd { margin-right: 6px; }
+#finBtn {
+  --cut: 10px;
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 70px);
+  min-width: 0; min-height: 0; height: 52px; padding: 0 26px;
+  font-size: 18px; letter-spacing: 3px; color: #fff;
+  background: rgba(190, 40, 22, .88); border: 2px solid #ff8a6a;
+}
+#finBtn:active { transform: translateX(-50%) scale(.95); }
+@media (pointer: fine) { body:not(.touch-used) #finBtn { display: none !important; } }
+@media (pointer: coarse) { #finPrompt { display: none !important; } }
+body.touch-used #finPrompt { display: none !important; }
+
+/* Private Cody cheat panel on the start screen */
+#cheatBox { position: fixed; left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom)); z-index: 20; width: min(230px, calc(100vw - 24px)); padding: 9px; text-align: left; background: rgba(8, 12, 10, .94); border: 1px solid rgba(180, 195, 155, .35); border-radius: 7px; box-shadow: 0 5px 24px rgba(0,0,0,.45); }
+.cheatUnlockRow { display:flex; gap:6px; }
+.cheatUnlockRow input { min-width:0; width:100%; height:34px; padding:5px 8px; font-size:13px; }
+.cheatUnlockRow button { min-height:34px; padding:4px 9px; font-size:11px; }
+#cheatPanel { display:flex; flex-direction:column; gap:5px; margin-top:8px; }
+.cheatTitle { color:#d6e2b6; font-weight:800; font-size:12px; letter-spacing:2px; }
+.cheatToggle { width:100%; min-height:30px; text-align:left; padding:5px 8px; font-size:12px; }
+.cheatToggle.active { border-color:#9cce67; color:#c9f29b; background:rgba(70,105,42,.35); }
+.cheatNote { margin:2px 0 0; color:#aeb7a4; font-size:10px; line-height:1.25; }
+
+/* In-game cheat-schakelaars (alleen zichtbaar na het ontgrendelen op het startscherm) */
+#cheatHud { position: absolute; left: max(8px, env(safe-area-inset-left)); top: 64px; display: flex; flex-direction: column; gap: 4px; z-index: 12; pointer-events: none; }
+#cheatHud button { pointer-events: auto; min-height: 30px; padding: 3px 9px; font-size: 12px; text-align: left; opacity: .85; }
+#cheatHud button.active { border-color: #9cce67; color: #c9f29b; background: rgba(70,105,42,.45); opacity: 1; }
+/* cheat-paneel mag nooit buiten beeld vallen: scrollbaar, en compact (2 kolommen) op lage schermen */
+#cheatBox { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; }
+@media (max-height: 560px) {
+  #cheatBox { width: min(276px, calc(100vw - 24px)); }
+  .cheatUnlockRow button { padding: 4px 6px; font-size: 10px; letter-spacing: 0; }
+  #cheatPanel { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  #cheatPanel .cheatTitle, #cheatPanel .cheatNote { grid-column: 1 / -1; }
+  .cheatToggle { min-height: 30px !important; height: 30px; font-size: 10px !important; letter-spacing: 0 !important; padding: 2px 5px !important; white-space: nowrap; }
+}
+.cheatUnlockRow button { flex: none; min-width: 66px; }
+
+/* spelmodus- en finisherkeuze in de lobby */
+.modeGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; width: min(760px, 100%); }
+.modeBtn { display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 5px 9px; text-align: left; font-size: 14px; line-height: 1.1; }
+.modeBtn .mi { font-size: 20px; line-height: 1; flex: none; }
+.modeGrid.readonly .modeBtn { opacity: .75; }
+.modeGrid.readonly .modeBtn.active { opacity: 1; }
+@media (max-height: 500px), (max-width: 480px) { .modeGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; } .modeBtn { font-size: 12px; min-height: 36px; padding: 3px 6px; } .modeBtn .mi { font-size: 16px; } }
+
+/* ---------------- KILLCAM ---------------- */
+body.kc #hud > *:not(#killcam) { visibility: hidden !important; }
+body.kc #cheatHud { visibility: hidden !important; }
+#killcam { position: absolute; inset: 0; z-index: 28; pointer-events: auto; overflow: hidden; touch-action: manipulation; cursor: pointer; }
+#killcam .kcBar { position: absolute; left: 0; right: 0; height: 0; background: #000; transition: height .35s cubic-bezier(.2,.8,.2,1); z-index: 3; }
+#killcam .kcBar.top { top: 0; } #killcam .kcBar.bot { bottom: 0; }
+#killcam.run .kcBar { height: 11vh; }
+#killcam .kcVig { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0,0,0,.65) 100%); transition: background .3s; }
+#killcam.freeze .kcVig { background: radial-gradient(ellipse at 50% 50%, rgba(120,0,0,0) 25%, rgba(150,10,10,.6) 100%); }
+#killcam .kcGrain { position: absolute; inset: -50%; z-index: 2; opacity: .16; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.5) 0 1px, transparent 1px 3px), radial-gradient(rgba(255,255,255,.35) 1px, transparent 1.5px) 0 0 / 5px 5px;
+  }
+@keyframes kcGrain { 0% { transform: translate(0,0); } 25% { transform: translate(-3%, 2%); } 50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -1%); } 100% { transform: translate(0,0); } }
+#killcam .kcFlash { position: absolute; inset: 0; z-index: 4; background: #fff; opacity: 0; pointer-events: none; }
+#killcam.freeze .kcFlash { animation: kcFlash .5s ease-out; }
+@keyframes kcFlash { from { opacity: .85; } to { opacity: 0; } }
+#killcam .kcRec { position: absolute; z-index: 5; left: max(16px, env(safe-area-inset-left)); top: calc(11vh + 10px); display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-head); font-weight: 800; font-size: 18px; letter-spacing: 4px; color: #fff; text-shadow: 0 1px 3px #000; opacity: 0; transition: opacity .3s .3s; }
+#killcam.run .kcRec { opacity: 1; }
+#killcam .kcRec i { width: 12px; height: 12px; border-radius: 50%; background: #ff2e2e; box-shadow: 0 0 10px #ff2e2e; animation: kcBlink 1s steps(2) infinite; }
+#killcam .kcRec b { font-weight: 600; letter-spacing: 2px; color: #ffd0d0; margin-left: 8px; }
+@keyframes kcBlink { 50% { opacity: .15; } }
+#killcam .kcBanner { position: absolute; z-index: 5; left: 50%; bottom: calc(11vh + 14px); transform: translate(-50%, 30px); opacity: 0; text-align: center; display: flex; flex-direction: column; align-items: center;
+  font-family: var(--font-head); text-shadow: 0 2px 6px rgba(0,0,0,.9); transition: transform .45s cubic-bezier(.2,.9,.2,1), opacity .35s; }
+#killcam.run .kcBanner { opacity: 1; transform: translate(-50%, 0); transition-delay: .5s; }
+#killcam .kcBanner small { font-size: 14px; letter-spacing: 6px; color: #ffb4a8; font-weight: 700; }
+#killcam .kcBanner strong { font-size: clamp(34px, 7vw, 64px); line-height: 1; letter-spacing: 4px; color: #fff; text-transform: uppercase; font-weight: 800; }
+#killcam .kcBanner em { font-style: normal; font-size: 16px; letter-spacing: 5px; color: var(--accent, #ff9a1f); font-weight: 700; }
+#killcam.freeze .kcBanner { transform: translate(-50%, 0) scale(1.12); }
+#killcam.freeze .kcBanner strong { color: #ff5a4a; }
+#killcam .kcSkip { position: absolute; z-index: 5; right: max(16px, env(safe-area-inset-right)); top: calc(11vh + 12px); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.65); text-shadow: 0 1px 3px #000; }
+@media (max-height: 500px) { #killcam .kcBanner strong { font-size: 30px; } #killcam .kcBanner small, #killcam .kcBanner em { font-size: 11px; letter-spacing: 3px; } #killcam .kcRec { font-size: 14px; } }
+
+#killcam .kcGrain { display: none; }
+#streak { position: absolute; left: 50%; top: 26%; transform: translate(-50%, 0) scale(.6); opacity: 0; pointer-events: none; z-index: 20; white-space: nowrap;
+  font-size: clamp(30px, 6vw, 58px); font-weight: 900; letter-spacing: 4px; color: #ffcf4a; text-shadow: 0 3px 0 #b3420a, 0 0 24px rgba(255,120,20,.8), 0 2px 6px #000; }
+#streak.show { animation: streakPop 1.7s ease-out forwards; }
+@keyframes streakPop { 0% { opacity: 0; transform: translate(-50%, 10px) scale(.5); } 12% { opacity: 1; transform: translate(-50%, 0) scale(1.25); } 25% { transform: translate(-50%, 0) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -14px) scale(1); } }

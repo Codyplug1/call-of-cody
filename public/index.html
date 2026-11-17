@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d100e">
+  <title>Arena Shooter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <!-- [polish] Laadscherm / loading screen (zichtbaar tot de 3D-modellen klaar zijn) -->
+  <div id="loading" class="screen" role="status" aria-live="polite">
+    <h1>ARENA<br>SHOOTER</h1>
+    <div id="loadLabel" class="label">Laden · Loading</div>
+    <div class="loadBar"><div id="loadFill"></div></div>
+    <p id="loadMsg" class="hint"></p>
+  </div>
+  <script>
+    setTimeout(function () {
+      if (window.__ccBoot) return;
+      var m = document.getElementById('loadMsg');
+      if (m) m.textContent = 'De 3D-bibliotheek laadt niet. Controleer je internet en herlaad de pagina. / The 3D library did not load. Check your internet and reload the page.';
+    }, 20000);
+  </script>
+
+  <!-- Menu -->
+  <div id="menu" class="screen">
+    <h1>ARENA<br>SHOOTER</h1>
+    <input id="nameInput" maxlength="14" autocomplete="off" data-i18n-ph="name">
+    <div class="row">
+      <button id="btnLangNl" class="small lang">NL</button>
+      <button id="btnLangEn" class="small lang">EN</button>
+      <!-- [polish] instellingen / besturing / volledig scherm -->
+      <span class="menuSep"></span>
+      <button id="btnSettings" class="small secondary menuTool" data-i18n="menuSettings"></button>
+      <button id="btnControls" class="small secondary menuTool" data-i18n="menuControls"></button>
+      <button class="small secondary menuTool fsBtn hidden"></button>
+    </div>
+    <button id="btnCreate" data-i18n="create"></button>
+    <div class="or" data-i18n="or"></div>
+    <div class="row">
+      <input id="codeInput" maxlength="8" autocomplete="off" autocapitalize="characters" data-i18n-ph="code">
+      <button id="btnJoin" class="secondary" data-i18n="join"></button>
+    </div>
+    <p id="menuMsg" class="msg"></p>
+    <p class="hint" data-i18n="hint"></p>
+    <div id="cheatBox" aria-label="Cheats">
+      <div class="cheatUnlockRow"><input id="cheatCodeInput" maxlength="16" autocomplete="off" placeholder="Cheat code"><button id="cheatUnlockBtn" class="small secondary">UNLOCK</button></div>
+      <div id="cheatPanel" class="hidden">
+        <div class="cheatTitle">CODY CHEATS</div>
+        <button class="small secondary cheatToggle" data-cheat="speedBoost">Speed boost: OFF</button>
+        <button class="small secondary cheatToggle" data-cheat="superJump">Super jump: OFF</button>
+        <button class="small secondary cheatToggle" data-cheat="godMode">God mode: OFF</button>
+        <button class="small secondary cheatToggle" data-cheat="aimbot">Aimbot: OFF</button>
+        <button class="small secondary cheatToggle" data-cheat="wallHack">Wall hack: OFF</button>
+        <button class="small secondary cheatToggle" data-cheat="infiniteAmmo">Infinite ammo: ON</button>
+        <p class="cheatNote">Infinite ammo is already unlimited in this game.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lobby -->
+  <div id="lobby" class="screen hidden">
+    <h2 data-i18n="lobbyTitle"></h2>
+    <div class="label" data-i18n="roomCode"></div>
+    <div id="roomCode"></div>
+    <p class="hint" data-i18n="share"></p>
+    <button id="btnShare" class="small secondary" data-i18n="shareBtn"></button>
+
+    <h3 data-i18n="weapon"></h3>
+    <div id="weaponPick" class="row"></div>
+    <h3 data-i18n="skin"></h3>
+    <div id="skinPick" class="skin-grid"></div>
+    <h3 data-i18n="finisher"></h3>
+    <div id="finPick" class="modeGrid"></div>
+
+    <h3 data-i18n="difficulty"></h3>
+    <div id="diffPick" class="row settings"></div>
+    <h3 data-i18n="target"></h3>
+    <div id="targetPick" class="row settings"></div>
+    <h3 data-i18n="mode"></h3>
+    <div id="modePick" class="modeGrid"></div>
+    <p id="modeDesc" class="hint"></p>
+    <p id="settingsHint" class="hint" data-i18n="hostOnly"></p>
+
+    <h3 data-i18n="players"></h3>
+    <ul id="playerList"></ul>
+
+    <button id="btnStart" data-i18n="start"></button>
+    <button id="btnVRLobby" class="vrBtn secondary hidden">ENTER VR</button><!-- VR (fase 5): alleen zichtbaar als WebXR immersive-vr kan -->
+    <p id="waitMsg" class="hint" data-i18n="waitHost"></p>
+    <p id="soloMsg" class="hint" data-i18n="solo"></p>
+    <button id="btnLeaveLobby" class="small secondary" data-i18n="leave"></button>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="topBar">
+      <span id="hudAlive"></span>
+      <span id="hudLevel"></span>
+      <span id="hudTarget"></span>
+    </div>
+    <button id="btnQuit" class="small secondary" aria-label="Menu" title="Menu (Esc)">☰</button>
+    <button id="btnVRHud" class="vrBtn small secondary hidden">ENTER VR</button><!-- VR (fase 5) -->
+    <!-- [FPS] camera eerste/derde persoon (touch; pc: toets V) - public/fps.js -->
+    <button id="camBtn" class="small secondary" aria-label="Camera" title="Camera (V)"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg><span class="camTag">3P</span></button>
+    <div id="cheatHud" class="hidden"><button id="aimBtn" class="small secondary"></button><button id="whBtn" class="small secondary"></button></div>
+    <div id="killcam" class="hidden" aria-live="polite">
+      <div class="kcBar top"></div><div class="kcBar bot"></div>
+      <div class="kcGrain"></div><div class="kcVig"></div><div class="kcFlash"></div>
+      <div class="kcRec"><i></i><span data-i18n="killcam"></span><b id="kcTime"></b></div>
+      <div class="kcBanner"><small data-i18n="killedBy"></small><strong id="kcName"></strong><em id="kcWeapon"></em></div>
+      <div class="kcSkip" data-i18n="skipKc"></div>
+    </div>
+    <div id="dmgDirs"></div>
+    <div id="scope" class="hidden"></div>
+    <div id="crosshair"></div>
+    <div id="hitmarker"></div>
+    <div id="streak"></div>
+    <div id="killConfirm"><div class="k1" data-i18n="eliminated"></div><div id="killName"></div></div>
+    <div id="protect" class="hidden"><span data-i18n="protected"></span><div class="bar"><div id="protectFill"></div></div></div>
+    <div id="banner"></div>
+    <div id="feed"></div>
+    <div id="spectateMsg"></div>
+    <button id="btnTakeover" class="hidden"></button>
+    <div id="hpWrap"><div id="hpBar"></div><span id="hpText">100</span></div>
+    <!-- [MES] inventaris (1 wapen, 2 mes, 3 medkit), medkit-balk, finisher-prompt (pc) en -knop (touch) -->
+    <div id="invBar" class="hidden">
+      <button class="invSlot" data-s="0"><b>1</b><span id="invW"></span></button>
+      <button class="invSlot" data-s="1"><b>2</b><span data-i18n="invKnife"></span></button>
+      <button class="invSlot" data-s="2"><b>3</b><span data-i18n="invMed"></span><i id="invMedN">x1</i></button>
+    </div>
+    <div id="healBar" class="hidden"><span data-i18n="healing"></span><div class="bar"><div id="healFill"></div></div></div>
+    <div id="finPrompt" class="hidden"></div>
+    <button id="finBtn" class="hidden" data-i18n="finishBtn"></button>
+    <div id="vignette"></div>
+    <div id="joyBase"><div id="joyKnob"></div></div>
+    <button id="fireBtn" data-i18n="fire"></button>
+    <button id="zoomBtn" class="hidden" data-i18n="zoom"></button>
+    <div id="moveBtns">
+      <button id="proneBtn" class="moveBtn" data-i18n="prone"></button>
+      <button id="crouchBtn" class="moveBtn" data-i18n="crouch"></button>
+      <button id="jumpBtn" class="moveBtn" data-i18n="jump"></button>
+    </div>
+  </div>
+
+  <!-- Eindscherm wedstrijd / match end -->
+  <div id="matchEnd" class="screen hidden">
+    <div id="meTag" class="label"></div>
+    <h2 id="meTitle"></h2>
+    <table id="meTable">
+      <thead><tr id="meHead"></tr></thead>
+      <tbody id="meBody"></tbody>
+    </table>
+    <p id="meBack" class="hint"></p>
+  </div>
+
+  <!-- [polish] Pauzemenu / pause menu -->
+  <div id="pause" class="screen overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="label pauseTag" data-i18n="pauseTag"></div>
+    <h2 id="pauseTitle" data-i18n="paused"></h2>
+    <p class="hint" data-i18n="pauseNote"></p>
+    <div class="pauseBtns">
+      <button id="btnResume" data-i18n="resume"></button>
+      <button id="btnPauseSettings" class="secondary" data-i18n="menuSettings"></button>
+      <button id="btnPauseControls" class="secondary" data-i18n="menuControls"></button>
+      <button class="secondary fsBtn hidden"></button>
+      <button id="btnPauseLeave" class="secondary danger" data-i18n="leaveGame"></button>
+    </div>
+  </div>
+
+  <!-- [polish] Instellingen / settings -->
+  <div id="settingsPanel" class="screen overlay hidden" role="dialog" aria-modal="true" aria-labelledby="cfgTitle">
+    <h2 id="cfgTitle" data-i18n="menuSettings"></h2>
+    <div class="cfgGrid">
+      <section class="cfgSec">
+        <h3 data-i18n="secControls"></h3>
+        <label class="cfgRow"><span data-i18n="mouseSens"></span><input type="range" id="cfgMouse" min="0.2" max="3" step="0.05"><output id="cfgMouseV"></output></label>
+        <label class="cfgRow"><span data-i18n="touchSens"></span><input type="range" id="cfgTouch" min="0.2" max="3" step="0.05"><output id="cfgTouchV"></output></label>
+        <div class="cfgRow"><span data-i18n="invertY"></span><div class="seg" id="cfgInvert"></div></div>
+      </section>
+      <section class="cfgSec">
+        <h3 data-i18n="secDisplay"></h3>
+        <div class="cfgRow"><span data-i18n="camMode"></span><div class="seg" id="cfgCamera"></div></div><!-- [FPS] -->
+        <label class="cfgRow"><span data-i18n="fov"></span><input type="range" id="cfgFov" min="55" max="100" step="1"><output id="cfgFovV"></output></label>
+        <div class="cfgRow"><span data-i18n="quality"></span><div class="seg" id="cfgQuality"></div></div>
+        <p class="cfgNote" id="cfgQualNote"></p>
+        <div class="cfgRow"><span data-i18n="showFps"></span><div class="seg" id="cfgFps"></div></div>
+      </section>
+      <section class="cfgSec">
+        <h3 data-i18n="secAudioLang"></h3>
+        <label class="cfgRow"><span data-i18n="volume"></span><input type="range" id="cfgVol" min="0" max="100" step="1"><output id="cfgVolV"></output></label>
+        <div class="cfgRow"><span data-i18n="secLang"></span><div class="seg" id="cfgLang"></div></div>
+      </section>
+    </div>
+    <div class="row">
+      <button id="cfgReset" class="small secondary" data-i18n="reset"></button>
+      <button id="cfgBack" class="small" data-i18n="back"></button>
+    </div>
+  </div>
+
+  <!-- [polish] Besturing / controls help -->
+  <div id="controlsPanel" class="screen overlay hidden" role="dialog" aria-modal="true" aria-labelledby="ctrlTitle">
+    <h2 id="ctrlTitle" data-i18n="menuControls"></h2>
+    <div class="ctrlGrid">
+      <section class="ctrlSec ctrlKb">
+        <h3 data-i18n="ctrlKb"></h3>
+        <div class="ctrlRow"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <small data-i18n="kArrows"></small></span><span data-i18n="cMove"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="kMouse"></kbd></span><span data-i18n="cAim"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="kClick"></kbd></span><span data-i18n="cFire"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="kSpace"></kbd></span><span data-i18n="cJump"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>C</kbd></span><span data-i18n="cCrouch"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>K</kbd><kbd>L</kbd></span><span data-i18n="cViewZoom"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>Z</kbd><kbd class="wide">Ctrl</kbd></span><span data-i18n="cProne"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>W</kbd><kbd>S</kbd></span><span data-i18n="cLadder"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>V</kbd></span><span data-i18n="cCamera"></span></div><!-- [FPS] -->
+        <div class="ctrlRow"><span class="keys"><kbd>E</kbd><kbd class="wide" data-i18n="kClick"></kbd></span><span data-i18n="cTake"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>E</kbd></span><span data-i18n="cDoor"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span><span data-i18n="cSlots"></span></div><!-- [MES] -->
+        <div class="ctrlRow"><span class="keys"><kbd>Q</kbd></span><span data-i18n="cQuick"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>H</kbd></span><span data-i18n="cMedkit"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>F</kbd></span><span data-i18n="cFinish"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide">Esc</kbd></span><span data-i18n="cMenu"></span></div>
+        <p class="cfgNote" data-i18n="cLock"></p>
+      </section>
+      <section class="ctrlSec ctrlTouch">
+        <h3 data-i18n="ctrlTouch"></h3>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="tLeft"></kbd></span><span data-i18n="tMove"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="tRight"></kbd></span><span data-i18n="tAim"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide fire" data-i18n="tFireBtn"></kbd></span><span data-i18n="cFire"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="jump"></kbd><kbd class="wide" data-i18n="crouch"></kbd><kbd class="wide" data-i18n="prone"></kbd></span><span data-i18n="tStance"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="tLeft"></kbd></span><span data-i18n="tLadder"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide">👁 3P/1P</kbd></span><span data-i18n="tCamera"></span></div><!-- [FPS] -->
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="tTakeBtn"></kbd></span><span data-i18n="tTake"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="tDoorBtn"></kbd></span><span data-i18n="tDoor"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span><span data-i18n="tSlots"></span></div><!-- [MES] -->
+        <div class="ctrlRow"><span class="keys"><kbd class="wide" data-i18n="tFinishBtn"></kbd></span><span data-i18n="tFinish"></span></div>
+        <div class="ctrlRow"><span class="keys"><kbd>☰</kbd></span><span data-i18n="cMenu"></span></div>
+      </section>
+    </div>
+    <p class="hint" data-i18n="ctrlNote"></p>
+    <button id="ctrlBack" class="small" data-i18n="back"></button>
+  </div>
+
+  <script src="shared.js"></script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>
